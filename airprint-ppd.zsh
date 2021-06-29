@@ -7,13 +7,14 @@
 #     Apizz: https://aporlebeke.wordpress.com/2019/10/30/configuring-printers-programmatically-for-airprint/
 #
 # Author: choules@wycomco.de
-# Last Update: 2021-06-21
+# Last Update: 2021-06-29
 #
 ##################################################################
 
 ICNS_COPY_DIR=""
 PPD_OUTPUT_DIR="/Library/Printers/PPDs/Contents/Resources"
 PRINTER_URL=""
+OUTPUT_NAME=""
 SECURE_MODE=false
 
 SCRIPT_NAME=`basename $0`
@@ -23,17 +24,18 @@ AIRPRINT_PPD="/System/Library/Frameworks/ApplicationServices.framework/Versions/
 
 usage() {
     cat <<EOF
-Usage: ${SCRIPT_NAME} -p printer_url [-i icns_copy_dir] [-o ppd_output_dir] [-s]
+Usage: ${SCRIPT_NAME} -p printer_url [-i icns_copy_dir] [-o ppd_output_dir] [-n name] [-s]
 
 This script queries the given printer url for a PPD and handles the icon generation, so that it may
 be run as root. A printer icon will be generated and saved to the default location with the expected
 name containing the printers UUID. You may optionally save a copy of the icons file to a different 
 location.
 
-    -p printer_url        IPP URL, for example ipp://FNCYPRINT.local or ipp://192.168.1.244:443
+    -p printer_url        IPP URL, for example ipp://FNCYPRINT.local or ipp://192.168.1.244:443, mandatory
     -i icns_copy_dir      Output dir for copy of icon, required if not running with root privileges
     -o ppd_output_dir     Output dir for PPD, required if not running with root privileges.
                           For root user this defaults to /Library/Printers/PPDs/Contents/Resources
+    -n name               Name to be used for icon and ppd file, defaults to queried model name
     -s                    Switch to secure mode, which won't ignore untrusted TLS certificates
     -h                    Show this usage message
 
@@ -48,7 +50,7 @@ get_ippinfo_string() {
     cat "$1" | grep -i "$2" | awk -F " = " '{ print $2 }'
 }
 
-while getopts "p:i:o:sh" option
+while getopts "p:i:o:n:sh" option
 do
     case $option in
         "p")
@@ -59,6 +61,9 @@ do
             ;;
         "o")
             PPD_OUTPUT_DIR="$OPTARG"
+            ;;
+        "n")
+            OUTPUT_NAME="$OPTARG"
             ;;
         "s")
             SECURE_MODE=true
@@ -147,6 +152,10 @@ MANUFACTURER=`get_ppd_string "${PPD_FILE}" "Manufacturer"`
 DEFAULT_ICON_PATH=`get_ppd_string "${PPD_FILE}" "APPrinterIconPath"`
 
 IPPINFO_FILE="${TEMP_DIR}/ippinfo"
+
+if [ "${OUTPUT_NAME}" = "" ]; then
+    OUTPUT_NAME="${MODEL_NAME}"
+fi
 
 echo "Fetching the IPP attributes using ipptool..."
 "${IPPTOOL}" -tv "${PRINTER_URL}" get-printer-attributes.test > "${IPPINFO_FILE}"
@@ -250,15 +259,15 @@ then
     cp "${ICNS_TMP_FILE}" "${DEFAULT_ICON_PATH}"
 
     if [ "${ICNS_COPY_DIR}" != "" ]; then
-        echo "Saving a copy of the icns file to ${ICNS_COPY_DIR}/${MODEL_NAME}.icns..."
-        cp "${ICNS_TMP_FILE}" "${ICNS_COPY_DIR}/${MODEL_NAME}.icns"
+        echo "Saving a copy of the icns file to ${ICNS_COPY_DIR}/${OUTPUT_NAME}.icns..."
+        cp "${ICNS_TMP_FILE}" "${ICNS_COPY_DIR}/${OUTPUT_NAME}.icns"
     fi
 else
     echo "The iconset does not contain any image files, so we will skip all other icon handling..."
 fi
 
-echo "Saving the PPD to ${PPD_OUTPUT_DIR}/${MODEL_NAME}.ppd..."
-cp "${PPD_FILE}" "${PPD_OUTPUT_DIR}/${MODEL_NAME}.ppd"
+echo "Saving the PPD to ${PPD_OUTPUT_DIR}/${OUTPUT_NAME}.ppd..."
+cp "${PPD_FILE}" "${PPD_OUTPUT_DIR}/${OUTPUT_NAME}.ppd"
 
 echo "Removing the temporary directory..."
 rm -rf "${TEMP_DIR}"
