@@ -11,7 +11,7 @@
 #
 ##################################################################
 
-VERSION="1.0.0"
+VERSION="v1.2.0"
 
 ICNS_COPY_DIR=""
 PPD_OUTPUT_DIR="/Library/Printers/PPDs/Contents/Resources"
