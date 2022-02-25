@@ -7,11 +7,11 @@
 #     Apizz: https://aporlebeke.wordpress.com/2019/10/30/configuring-printers-programmatically-for-airprint/
 #
 # Author: choules@wycomco.de
-# Last Update: 2021-06-29
+# Last Update: 2022-02-25
 #
 ##################################################################
 
-VERSION="v1.2.0"
+VERSION="1.2.0"
 
 ICNS_COPY_DIR=""
 PPD_OUTPUT_DIR="/Library/Printers/PPDs/Contents/Resources"
