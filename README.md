@@ -17,6 +17,7 @@ This script queries the given printer url for a PPD and handles the icon generat
 * `-o ppd_output_dir`: Output dir for PPD, required if not running with root privileges. For root user this defaults to `/Library/Printers/PPDs/Contents/Resources`
 * `-n name`: Name to be used for icon and ppd file, defaults to queried model name
 * `-s`: Switch to secure mode, which won't ignore untrusted TLS certificates
+* `-v`: Display current version
 * `-h`: Show usage message
 
 So, when running this script without root privileges, you are required to specify all three parameters. Running as root enables you to use the default directories for the printer icon and the PPD file.

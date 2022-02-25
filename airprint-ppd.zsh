@@ -11,6 +11,8 @@
 #
 ##################################################################
 
+VERSION="1.0.0"
+
 ICNS_COPY_DIR=""
 PPD_OUTPUT_DIR="/Library/Printers/PPDs/Contents/Resources"
 PRINTER_URL=""
@@ -24,7 +26,7 @@ AIRPRINT_PPD="/System/Library/Frameworks/ApplicationServices.framework/Versions/
 
 usage() {
     cat <<EOF
-Usage: ${SCRIPT_NAME} -p printer_url [-i icns_copy_dir] [-o ppd_output_dir] [-n name] [-s]
+Usage: ${SCRIPT_NAME} -p printer_url [-i icns_copy_dir] [-o ppd_output_dir] [-n name] [-s] [-v]
 
 This script queries the given printer url for a PPD and handles the icon generation, so that it may
 be run as root. A printer icon will be generated and saved to the default location with the expected
@@ -37,6 +39,7 @@ location.
                           For root user this defaults to /Library/Printers/PPDs/Contents/Resources
     -n name               Name to be used for icon and ppd file, defaults to queried model name
     -s                    Switch to secure mode, which won't ignore untrusted TLS certificates
+    -v                    Display current version
     -h                    Show this usage message
 
 EOF
@@ -50,7 +53,7 @@ get_ippinfo_string() {
     cat "$1" | grep -i "$2" | awk -F " = " '{ print $2 }'
 }
 
-while getopts "p:i:o:n:sh" option
+while getopts "p:i:o:n:svh" option
 do
     case $option in
         "p")
@@ -67,6 +70,10 @@ do
             ;;
         "s")
             SECURE_MODE=true
+            ;;
+        "v")
+            echo ${VERSION}
+            exit 1
             ;;
         "h" | *)
             usage
